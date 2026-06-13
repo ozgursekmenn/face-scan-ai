@@ -1,0 +1,51 @@
+\section{BULUT GÜVENLİĞİ BULGULARI VE TARTIŞMA}
+
+Bu bölümde FaceScan AI sisteminin bulut ortamındaki güvenlik durumu, gerçekleştirilen analizler ve elde edilen bulgular akademik bir bakış açısıyla ele alınmaktadır.
+
+\subsection{Bulut Tabanlı Sistemlerde Güvenlik Yaklaşımı}
+
+Bulut bilişim ortamlarında güvenlik sorumlulukları, bulut sağlayıcısı ve müşteri arasında paylaşılan bir sorumluluk modeliyle (Shared Responsibility Model) düzenlenmektedir \cite{mell2011nist}. PaaS modelinde sağlayıcı; fiziksel güvenlik, işletim sistemi yamaları ve ağ altyapısını üstlenirken, müşteri; uygulama kodu güvenliği, erişim kontrolü ve veri şifrelemesinden sorumludur. FaceScan AI projesinde bu sorumlulukların müşteri tarafı kapsamındaki güvenlik denetimleri, MobSF ile gerçekleştirilen statik güvenlik analiziyle sağlanmıştır.
+
+\subsection{MobSF Statik Analiz Metodolojisi}
+
+MobSF (Mobile Security Framework), OWASP MSTG ile uyumlu açık kaynaklı bir güvenlik analiz platformudur \cite{mobsf2023docs}. Android uygulamaları için gerçekleştirilen statik analiz (SAST) süreci şu adımlardan oluşmaktadır:
+
+\begin{enumerate}
+  \item \textbf{Sertifika Analizi:} APK'nın dijital imza sertifikası (keystore) incelenerek imzalama şeması (v1/v2/v3) ve anahtar gücü doğrulanmaktadır.
+  \item \textbf{AndroidManifest.xml Denetimi:} İzin bildirimleri, exported bileşenler ve yapılandırma hataları analiz edilmektedir.
+  \item \textbf{Kod Güvenlik Taraması:} JADX decompiler ile tersine mühendislik yapılarak kaynak kod içinde bilinen güvenlik açığı kalıpları aranmaktadır.
+  \item \textbf{Kütüphane Analizi:} Bağımlı üçüncü taraf kütüphaneler, bilinen CVE (Common Vulnerabilities and Exposures) veritabanıyla karşılaştırılmaktadır.
+\end{enumerate}
+
+\subsection{Analiz Bulguları ve Giderilen Açıklar}
+
+Tespit edilen güvenlik bulgularının analizi ve alınan önlemler Tablo \ref{tab:security_cloud}'de özetlenmiştir.
+
+\begin{table}[!ht]
+    \centering
+    \caption{Bulut Ortamı Güvenlik Analizi -- Bulgular ve Çözümler}
+    \label{tab:security_cloud}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|c|l|l|}
+        \hline
+        \textbf{Güvenlik Bulgusu} & \textbf{Risk Seviyesi} & \textbf{Kök Neden} & \textbf{Uygulanan Çözüm} \\
+        \hline
+        Eski Android OS Desteği & Yüksek & minSdkVersion=21 & minSdkVersion=29'a yükseltildi \\
+        \hline
+        ADB Veri Sızıntısı & Uyarı & allowBackup=true & allowBackup=false + tools:replace \\
+        \hline
+        Açık Servis Maruziyeti & Uyarı & exported=@bool & exported=false (sabit) \\
+        \hline
+        Janus Zafiyeti & Uyarı & Yalnızca v1 imza & Derleme hattı ile yönetildi \\
+        \hline
+        MobSF Güvenlik Skoru & -- & 53 / 100 & \textbf{73 / 100} \\
+        \hline
+    \end{tabular}%
+    }
+\end{table}
+
+\subsection{Ağ Güvenliği Katmanı}
+
+Bulut platformu düzeyinde ağ güvenliği Vercel altyapısı tarafından karşılanmaktadır. Tüm HTTP istekleri otomatik olarak HTTPS'e yönlendirilmekte; bu sayede ortadaki adam (MITM) saldırılarına karşı şifreli iletişim güvencesi sağlanmaktadır \cite{letsencrypt2023}. Bunun yanı sıra Vercel'in ağ katmanı, otomatik DDoS (Distributed Denial of Service) koruması sunmaktadır; bu mekanizma, kötü niyetli yoğun trafik saldırılarına karşı uygulamanın erişilebilirliğini korumaktadır.
+
+Uygulama içindeki veri akışı güvenliği değerlendirildiğinde, istemci tarafında gerçekleştirilen görüntü işleme yaklaşımının ağ güvenliği açısından da olumlu bir katkı sağladığı görülmektedir: Görüntü verisi ağ katmanına hiçbir aşamada çıkmadığından, paket dinleme (packet sniffing) saldırılarına karşı ek bir koruma katmanı oluşmaktadır \cite{owasp2023mobile}.

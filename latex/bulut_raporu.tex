@@ -1,0 +1,70 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[turkish]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{booktabs}
+
+\geometry{margin=1in}
+
+\title{\textbf{Bulut Bilişim Dersi Proje Raporu \\ Yüz Tanıma ve Renk Analizi ile Mobil Sağlık Teşhis Sistemi (FaceScan AI)}}
+\author{\textbf{Özgür SEKMEN} \\ Öğrenci No: (Öğrenci Numarası Yazılmalıdır) \\ E-posta: ozgursekmen1741@gmail.com}
+\date{\the\year}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\newpage
+\pagenumbering{arabic}
+
+\section{GİRİŞ}
+Modern web ve mobil uygulamaların ölçeklenebilirliği, yüksek erişilebilirliği ve düşük gecikme süreleri, bulut bilişim (Cloud Computing) mimarilerinin etkin kullanımı ile doğrudan ilişkilidir. Geleneksel barındırma (hosting) modellerinde karşılaşılan yüksek sunucu maliyetleri, donanım bakım zorlukları ve ani trafik yüklerinde sistemin kilitlenmesi gibi problemler, bulut bilişim çözümleriyle aşılmaktadır.
+
+Bu çalışma kapsamında, bulut tabanlı sunucusuz (serverless) mimari üzerine inşa edilen \textbf{FaceScan AI} isimli yüz renk analizi ve mobil teşhis sistemi geliştirilmiştir. Bu raporda, uygulamanın bulut altyapısı, dağıtım (deployment) süreçleri, küresel içerik dağıtım ağı (CDN) entegrasyonu, performans optimizasyonları ve güvenlik standartları detaylandırılmıştır.
+
+\section{BULUT ALTYAPISI VE DAĞITIM SÜREÇLERİ}
+FaceScan AI uygulaması, modern bir PaaS (Platform as a Service) bulut sağlayıcısı olan \textbf{Vercel} bulut altyapısında barındırılmaktadır. 
+
+\subsection{Sunucusuz (Serverless) Barındırma Modeli}
+Projede kullanılan sunucusuz mimari sayesinde, arka planda sürekli çalışan fiziksel bir sanal sunucu (VPS) kiralama ihtiyacı ortadan kaldırılmıştır. Vercel, gelen istek miktarına göre otomatik olarak ölçeklenen ve talep anında tetiklenen bulut fonksiyonlarını yönetir. Bu durum hem sunucu maliyetlerini sıfıra indirmiş hem de uygulamanın donanım yönetim yükünü tamamen ortadan kaldırmıştır.
+
+\subsection{Küresel İçerik Dağıtım Ağı (Edge CDN)}
+Uygulamanın statik varlıkları (HTML5, CSS3, JavaScript kodları, Android APK dosyası ve PDF Güvenlik raporu), Vercel'in küresel Edge Network ağı üzerinde barındırılmaktadır. 
+\begin{itemize}
+    \item Kullanıcı uygulamaya erişmek istediğinde, istek Amerika veya Avrupa'daki merkezi bir sunucu yerine, kullanıcının coğrafi konumuna en yakın Edge sunucusuna (örneğin İstanbul veya Frankfurt veri merkezleri) yönlendirilir.
+    \item Bu sayede veri aktarım süreleri (latency) minimize edilmiş ve yükleme hızı milisaniyeler seviyesine düşürülmüştür.
+\end{itemize}
+
+\subsection{Bulut Tabanlı Sürekli Dağıtım (CI/CD)}
+Uygulama kaynak kodlarında yapılan her güncelleme, bulut tabanlı otomatik derleme ve dağıtım hattını (CI/CD Pipeline) tetikler. Kodlar Vercel bulut sistemine gönderildiğinde:
+1. Bulut sunucuları projeyi otomatik olarak çeker ve `npm run build` komutunu çalıştırarak kod optimizasyonunu gerçekleştirir.
+2. Derlenen çıktıları anında canlı ortama aktarır ve \url{https://face-diagnose-app.vercel.app} adresini günceller.
+3. Otomatik sürüm kontrolü sayesinde hatalı bir dağıtım durumunda tek tıkla eski sürüme geri dönüş (rollback) imkanı sunar.
+
+\section{PWA VE İSTEMCİ TABANLI BULUT OPTİMİZASYONU}
+Bulut bilişimde ağ bant genişliği ve işlemci gücü kullanımı maliyet oluşturan temel unsurlardır. FaceScan AI projesinde bu maliyetleri azaltmak için \textbf{PWA (Progressive Web App)} ve \textbf{Client-Side Computing (İstemci Tabanlı Hesaplama)} yöntemleri kullanılmıştır.
+
+\subsection{İstemci Tabanlı Renk Analizi}
+Kullanıcıların kamera görüntülerinden elde edilen piksel verileri (RGB/HSL renk matrisleri), bulut sunucularına gönderilip orada işlenmek yerine, doğrudan kullanıcının kendi cihazındaki tarayıcı motoru (client-side) tarafından işlenir. Bu mimari karar:
+\begin{itemize}
+    \item Bulut sunucularının işlemci (CPU) yükünü tamamen sıfıra indirmiştir.
+    \item Kullanıcının büyük boyutlu video/görsel verilerini buluta yüklemesini (upload) engelleyerek internet kota kullanımını korumuştur.
+    \item Sağlık verilerinin üçüncü taraf sunuculara gitmesini önleyerek veri gizliliği sağlamıştır.
+\end{itemize}
+
+\subsection{Service Worker ve Bulut Eşzamanlaması}
+Service Worker (`sw.js`) altyapısı sayesinde, buluttan indirilen statik dosyalar kullanıcının cihazına önbelleğe alınır. Uygulama çevrimdışı (offline) olduğunda dahi buluttan bağımsız çalışabilir. İnternet bağlantısı geri geldiğinde ise bulut sunucuları ile sürüm kontrolü yaparak güncel dosyaları otomatik arka planda indirir.
+
+\section{BULUT GÜVENLİĞİ VE PERFORMANS}
+Bulut ortamında güvenlik, verilerin ve hizmet kesintisizliğinin korunması için elzemdir.
+* \textbf{Otomatik SSL/TLS Yönetimi:} Vercel, bulut DNS katmanında Let's Encrypt aracılığıyla otomatik 2048-bit SSL sertifikası üretir. Uygulama ile bulut sunucusu arasındaki tüm iletişim uçtan uca HTTPS protokolü ile şifrelenmiştir.
+* \textbf{DDoS Koruması:} Bulut sağlayıcının sunduğu yerleşik DDoS ve trafik filtresi sayesinde uygulamaya yönelik siber saldırılar ağ katmanında engellenir.
+* **Güvenlik İmzası ve Raporlama:** Uygulamanın derlenmiş APK dosyası, yerel olarak MobSF SAST güvenlik aracından geçirilmiş ve zafiyetlerden arındırılmış haliyle bulut sunucusuna yüklenerek indirmeye sunulmuştur.
+
+\section{SONUÇLAR}
+FaceScan AI projesinde geleneksel fiziksel sunucular yerine bulut bilişim teknolojilerinin (Serverless PaaS ve Edge CDN) tercih edilmesi; sıfır sunucu maliyeti, sınırsız ölçeklenebilirlik, yüksek çalışma süresi (uptime) ve üstün performans sağlamıştır. Proje, bulut bilişimin günümüz mobil ve web yazılımlarındaki pratik gücünü başarılı bir şekilde ortaya koymaktadır.
+
+\end{document}

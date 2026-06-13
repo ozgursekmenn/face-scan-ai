@@ -1,0 +1,26 @@
+\section{GİRİŞ}
+
+Günümüzde akıllı telefon kullanımının hızla artması, kişisel sağlık takibinde mobil uygulamaların vazgeçilmez bir araç haline gelmesine zemin hazırlamaktadır. Dünya Sağlık Örgütü verilerine göre düşük ve orta gelirli ülkelerde uzman hekim başvurularının büyük çoğunluğu önlenebilir hastalıklarla ilgilidir; bu durumun temel nedeni erken teşhis imkânlarının kısıtlılığıdır. Mobil sağlık teknolojileri bu boşluğu doldurmada kritik bir potansiyele sahiptir \cite{biorn2017progressive}.
+
+Akıllı telefon kameralarının piksel yoğunluğu ve renk derinliği son yıllarda profesyonel cihazlar düzeyine yaklaşmıştır. Bu durum, kamera akışından elde edilen ham piksel verilerinin renk bilimi algoritmalarıyla işlenmesi ve belirli biyolojik göstergelerle (cilt sarılık tonu, dudak morarması, genel cilt solgunluğu) ilişkilendirilmesi için önemli bir fırsat sunmaktadır. Aynı zamanda, modern tarayıcı API'lerinin (WebRTC, Canvas API, WebGL) sağladığı yerel hesaplama kapasitesi, bu tür analizlerin sunucu kaynaklarına ihtiyaç duyulmaksızın gerçek zamanlı olarak kullanıcı cihazında yürütülmesine olanak tanımaktadır \cite{webrtc2023spec}.
+
+Bu çalışma kapsamında, Bilecik Şeyh Edebali Üniversitesi Yönetim Bilişim Sistemleri Bölümü YBS458 Mobil Programlama dersi gereksinimleri doğrultusunda \textbf{FaceScan AI} isimli hibrit mobil sağlık uygulaması geliştirilmiştir. Projenin temel motivasyonu; tek bir kod tabanıyla hem web hem de mobil platformlara dağıtım yapılabilen, sunucu bağımlılığı bulunmayan, gizlilik odaklı ve güvenlik testinden geçirilmiş bir sistem oluşturmaktır.
+
+\subsection{Problemin Tanımı ve Motivasyon}
+
+Mevcut mobil sağlık uygulamalarının büyük çoğunluğu, bağımsız platform gereksinimleri nedeniyle iOS (Swift/Objective-C) ve Android (Java/Kotlin) için ayrı ayrı geliştirilmektedir. Bu yaklaşım, geliştirme maliyetlerini yaklaşık olarak iki katına çıkarmakta ve kod tutarsızlığı risklerini artırmaktadır \cite{malavolta2015hybrid}. Hibrit yaklaşımlar (React Native, Flutter, Ionic vb.) bu sorunu kısmen çözmekle birlikte, çoğunlukla platform özelliklerine uyum ve performans ödünleşimleri içermektedir.
+
+Progressive Web App (PWA) teknolojisi, bu bağlamda üçüncü bir seçenek sunmaktadır: Tek bir web kod tabanıyla, tarayıcı üzerinden çalışan, hem iOS hem Android cihazlara ana ekrana eklenebilen ve çevrimdışı çalışma kapasitesine sahip uygulamalar geliştirmek mümkündür \cite{biorn2017progressive}. Google'ın Trusted Web Activities (TWA) standardı ise bu PWA uygulamalarının Google Play Store'a gönderilebilir yerel Android paketleri (APK) haline dönüştürülmesine imkân tanımaktadır \cite{google2023twa}.
+
+\subsection{Projenin Kapsam ve Kısıtlamaları}
+
+Bu projede geliştirilen FaceScan AI sistemi akademik ve eğitim amaçlı olup bir tıbbi teşhis cihazı niteliği taşımamaktadır. Uygulama; sarılık riski, cilt solgunluğu ve dudak morarması gibi görsel belirtileri piksel renk analizi yöntemiyle sınıflandıran bir bilgilendirme aracıdır. Sistem şu kısıtlamalar çerçevesinde çalışmaktadır:
+\begin{itemize}
+  \item Tüm renk analizi işlemleri istemci cihazında gerçekleştirilmekte; herhangi bir görüntü verisi bulut sunucusuna aktarılmamaktadır.
+  \item Tarama geçmişi verileri kullanıcı cihazındaki tarayıcı yerel depolamasında (LocalStorage) saklanmakta, herhangi bir veri tabanına yazılmamaktadır.
+  \item Uygulama, WCAG 2.1 AA erişilebilirlik standartlarına uygun geliştirilmiştir.
+\end{itemize}
+
+\subsection{Raporun Yapısı}
+
+Bu rapor altı ana bölümden oluşmaktadır. İkinci bölümde kullanılan yazılımlar ve yöntemler açıklanmaktadır. Üçüncü bölümde sistemin uygulama mimarisi ve dağıtım süreci ele alınmaktadır. Dördüncü bölümde kullanıcı arayüzü bileşenleri anlatılmaktadır. Beşinci bölümde güvenlik analizi bulguları sunulmaktadır. Sonuç bölümünde ise çalışmanın genel değerlendirmesi yapılarak gelecek geliştirmeler için öneriler sunulmaktadır.

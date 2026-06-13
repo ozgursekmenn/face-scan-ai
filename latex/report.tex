@@ -1,0 +1,133 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[turkish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{geometry}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{fancyhdr}
+
+\geometry{margin=2.5cm}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=5pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+\lstset{style=mystyle}
+
+\title{\textbf{FaceScan AI: Yüz Analizi ve Görüntü İşleme Tabanlı Mobil ve Bulut Entegre Sağlık Teşhis Prototipi}}
+\author{
+    \textbf{Öğrenci Adı Soyadı:} Özgür Sekmen \\
+    \textbf{Öğrenci Numarası:} ... \\
+    \textbf{Dersler:} Mobil Programlama \& Bulut Bilişim Dönem Projesi
+}
+\date{14 Haziran 2026}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Bu çalışma, hem Mobil Programlama hem de Bulut Bilişim derslerinin ortak dönem sonu projesi kapsamında geliştirilen \textbf{FaceScan AI} isimli uygulamanın teknik mimarisini, güvenlik analizini, erişilebilirlik uyumluluğunu ve dağıtım adımlarını incelemektedir. FaceScan AI; istemci tarafında çalışan (client-side) görüntü işleme algoritmalarını kullanarak kullanıcıların yüz piksel verilerini analiz eder; sarılık (jaundice), solgunluk/anemi (pallor), siyanoz (cyanosis) ve yüz asimetrisi (asymmetry) gibi kritik sağlık belirtilerini tespit etmeyi hedefler. Uygulama, Mobil Programlama dersi isterlerine uygun olarak bir Progressive Web App (PWA) olarak yapılandırılmış ve MobSF (Mobile Security Framework) ile statik güvenlik analizine tabi tutulmuştur. Bulut Bilişim dersi isterlerine uygun olarak da Vercel bulut altyapısı üzerinde yüksek erişilebilirlikle canlıya alınmıştır. Uygulama geliştirilirken WCAG 2.1 erişilebilirlik standartları tam uyumlulukla gözetilmiştir.
+\end{abstract}
+
+\newpage
+\tableofcontents
+\newpage
+
+\section{Giriş}
+Teletıp ve uzaktan sağlık takibi sistemleri, günümüzde mobil ve bulut teknolojilerinin birleşmesiyle büyük bir ivme kazanmıştır. Bu proje kapsamında geliştirilen \textbf{FaceScan AI}, herhangi bir sunucu maliyeti veya veri gizliliği ihlali oluşturmadan, tamamen kullanıcının tarayıcısında (istemci tarafında) çalışan bir sağlık izleme prototipidir. 
+
+Projenin temel amacı; akıllı telefon veya bilgisayar kameraları aracılığıyla elde edilen yüz görselleri üzerinde renk kanalı analizleri uygulayarak karaciğer rahatsızlığı belirtisi olan sarılığı, kansızlık belirtisi olan cilt solgunluğunu, solunum yetersizliği belirtisi olan siyanozu ve inme (felç) belirtisi olan yüz asimetrisini erken aşamada saptayıp kullanıcıya farkındalık kazandırmaktır.
+
+\section{Teknik Mimari ve Bulut Entegrasyonu}
+Bulut Bilişim mimarisinde uygulamanın performanslı, ölçeklenebilir ve yüksek erişilebilir olması hedeflenmiştir.
+
+\subsection{Kullanılan Teknolojiler}
+\begin{itemize}
+    \item \textbf{Arayüz ve Mantıksal Katman:} React.js (v18) ve Vite derleme aracı.
+    \item \textbf{Tasarım ve Görsellik:} Vanilla CSS (Glassmorphism stili, HSL dinamik renk paleti).
+    \item \textbf{İkon Kütüphanesi:} Lucide React.
+    \item \textbf{Mobil Katman:} Progressive Web App (PWA) standartları (Service Worker önbellekleme ve manifest tanımları).
+    \subsection{Dağıtım (Deployment) Altyapısı}
+    Uygulama, sürekli entegrasyon ve sürekli dağıtım (CI/CD) hattı kurularak \textbf{Vercel} bulut platformu üzerinde dağıtılmıştır. 
+    \begin{itemize}
+        \item \textbf{Uygulama Bağlantısı (Dağıtım Linki):} \url{https://face-diagnose-app.vercel.app}
+        \item \textbf{GitHub Kaynak Kod Deposu:} \url{https://github.com/ozgursekmen/face-diagnose-app}
+    \end{itemize}
+\end{itemize}
+
+\subsection{İstemci-Sunucu Modeli ve Analiz Algoritması}
+Uygulama, kullanıcının veri gizliliğini en üst seviyede tutmak için buluta görüntü yüklemek yerine analizleri istemci tarayıcısındaki Canvas API üzerinde yürütür. Piksel analiz algoritması şu şekildedir:
+\begin{equation}
+RGB_{ortalama} = \frac{1}{N} \sum_{i=1}^{N} (R_i, G_i, B_i)
+\end{equation}
+\begin{itemize}
+    \item \textbf{Sarılık Endeksi:} Göz akının (sklera) piksellerindeki sarı ton yoğunluğu:
+    \begin{equation}
+    Jaundice\_Ratio = \frac{R + G}{2 \cdot B}
+    \end{equation}
+    \item \textbf{Siyanoz Oranı:} Dudak piksellerindeki mavi ton ağırlığı:
+    \begin{equation}
+    Cyanosis\_Ratio = \frac{B}{R}
+    \end{equation}
+\end{itemize}
+
+\section{Mobil Programlama ve PWA Yapısı}
+Uygulama, mobil cihazlarda yerel bir uygulama gibi çalışabilmesi için PWA standartlarında tasarlanmıştır.
+
+\subsection{Service Worker ve Çevrimdışı Çalışma}
+\lstinline{sw.js} dosyası aracılığıyla kritik uygulama bileşenleri önbelleğe (Cache Storage) alınır. Bu sayede uygulama çevrimdışı (offline) olduğunda bile arayüz yüklenir ve kullanıcı daha önce çekilmiş fotoğrafları yükleyerek analiz işlemini gerçekleştirebilir.
+
+\subsection{Manifest Tanımları}
+\lstinline{manifest.json} dosyası ile uygulamanın mobil cihazlarda tam ekran (\lstinline{standalone}) çalışması, dikey yönelim kilidi (\lstinline{portrait}), açılış ekranı rengi ve uygulama ikonları tanımlanmıştır.
+
+\section{MobSF (Mobile Security Framework) Güvenlik Analizi}
+Mobil Programlama dersi gereksinimleri doğrultusunda, uygulamanın mobil güvenlik analizi gerçekleştirilmiştir.
+
+\subsection{Analiz Metodolojisi}
+PWA uygulaması, Android platformunda yerel bir paket olarak çalışabilmesi için \textbf{Bubblewrap CLI} aracı kullanılarak Trusted Web Activity (TWA) standardında bir \textbf{APK} dosyasına dönüştürülmüştür. Elde edilen APK dosyası, MobSF analizörüne yüklenerek statik güvenlik taramasından geçirilmiştir.
+
+\subsection{Güvenlik Bulguları ve Bulguların Çözümü}
+Yapılan MobSF taramasında tespit edilen başlıklar ve alınan önlemler aşağıda özetlenmiştir:
+\begin{itemize}
+    \item \textbf{Cleartext Traffic (Açık Metin Trafiği):} Ağ trafiğinin güvenliği için \lstinline{AndroidManifest.xml} içerisinde \lstinline{usesCleartextTraffic=false} yapılandırılarak tüm ağ isteklerinin HTTPS protokolü kullanması zorunlu kılınmıştır.
+    \item \textbf{Excessive Permissions (Aşırı İzinler):} Uygulama sadece kamera erişimi (\lstinline{android.permission.CAMERA}) istemekte, kişi listesi veya konum gibi gereksiz izinler barındırmamaktadır.
+    \item \textbf{Javascript Execution Security:} Tarayıcı içi Javascript yürütmelerinde \lstinline{eval()} kullanımı engellenmiş, Cross-Site Scripting (XSS) açıkları kapatılmıştır.
+\end{itemize}
+
+\section{WCAG 2.1 Erişilebilirlik Uyumluluğu}
+Uygulama, W3C standartlarına tam uyum sağlamak üzere tasarlanmıştır:
+\begin{enumerate}
+    \item \textbf{Kontrast Oranı:} Tüm metin öğeleri ve arka plan kombinasyonlarında kontrast oranı 4.5:1 (WCAG AA standardı) sınırının üzerindedir.
+    \item \textbf{Ekran Okuyucu Desteği:} Tüm butonlarda ve etkileşimli alanlarda \lstinline{aria-label}, \lstinline{role="tablist"} ve \lstinline{aria-selected} gibi erişilebilirlik etiketleri kullanılmıştır.
+    \item \textbf{Klavye Odak Kontrolü:} Klavye ile gezinti yapan kullanıcılar için odaklanan öğeler belirgin odak çizgileri (\lstinline{focus-visible}) ile işaretlenmiştir.
+\end{enumerate}
+
+\section{Sonuç ve Değerlendirme}
+Bu projede, teletıp alanında yüz analizi yapan yenilikçi bir prototip geliştirilmiştir. Uygulamanın bulut entegrasyonu Vercel ile, mobil yetenekleri PWA ve APK çıktıları ile sağlanmıştır. MobSF güvenlik taraması ve WCAG standartları çerçevesinde hazırlanan bu proje, modern web ve mobil programlama disiplinlerinin tüm gerekliliklerini başarıyla karşılamaktadır.
+
+\end{document}

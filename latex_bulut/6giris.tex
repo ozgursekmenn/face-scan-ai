@@ -1,0 +1,21 @@
+\section{GİRİŞ}
+
+Bulut bilişim (Cloud Computing), bilişim kaynaklarının (hesaplama gücü, depolama alanı, ağ kapasitesi) internet üzerinden dinamik biçimde tahsis edilmesi ve kullanılmasını sağlayan bir teknoloji paradigmasıdır. ABD Ulusal Standartlar ve Teknoloji Enstitüsü (NIST), bulut bilişimi; "kullanıcılara isteğe bağlı olarak ağ üzerinden paylaşılan bilgisayar kaynakları (ağ, sunucu, depolama, uygulama ve hizmetler) havuzuna erişim imkânı sunan ve minimum yönetimsel çaba ya da hizmet sağlayıcı etkileşimiyle hızla temin edilip serbest bırakılabilen bir model" olarak tanımlamaktadır \cite{mell2011nist}.
+
+Bu model; IaaS (Infrastructure as a Service), PaaS (Platform as a Service) ve SaaS (Software as a Service) olmak üzere üç temel hizmet katmanında değerlendirilmektedir \cite{rimal2009taxonomy}. Bu çalışmada kullanılan Vercel platformu, PaaS katmanına karşılık gelmektedir: Altyapı yönetimini sağlayıcıya devreden geliştirici, yalnızca uygulama koduna odaklanmaktadır.
+
+Sunucusuz (Serverless) paradigma, PaaS modelinin daha da rafine bir versiyonudur. Bu yaklaşımda geliştirici herhangi bir sanal makine veya konteyner yapılandırmaz; kod doğrudan bulut fonksiyonları (Cloud Functions) olarak çalıştırılır ve yalnızca gerçek çalışma süresi üzerinden ücretlendirilir \cite{jonas2019cloud}. Büyük ölçekli statik web uygulamaları için bu modelin pratikte sıfır maliyet anlamına geldiği görülmektedir.
+
+\subsection{Bulut Bilişimin Mobil Uygulamalardaki Rolü}
+
+Mobil uygulamaların bulut altyapısıyla entegrasyonu, son yıllarda yaygınlaşmakta olan "Mobile Backend as a Service" (MBaaS) kavramını beraberinde getirmiştir. Ancak bu entegrasyonun tasarım kalitesi, uygulamanın güvenilirliği, veri gizliliği ve ölçeklendirme kapasitesi üzerinde doğrudan belirleyici etkiye sahiptir \cite{buyya2009cloud}. FaceScan AI projesi, bu ilişkiyi yeniden düşünerek görüntü işleme hesaplamalarını buluta değil istemciye konumlandıran bir model önermektedir; bu sayede hem bulut maliyetleri minimize edilmekte hem de kullanıcı gizliliği korunmaktadır.
+
+\subsection{Çalışmanın Amacı ve Kapsamı}
+
+Bu çalışmanın temel amacı, mobil sağlık teşhis uygulaması FaceScan AI'ın bulut bilişim altyapısını, optimizasyon stratejilerini ve güvenlik protokollerini tasarlamak ve uygulamaktır. Çalışma kapsamında şu başlıklar ele alınmaktadır:
+\begin{itemize}
+  \item Vercel PaaS platformu üzerinde sunucusuz uygulama barındırma ve küresel CDN dağıtımı,
+  \item Bulut bant genişliği ve CPU maliyetlerini optimize eden istemci tarafı hesaplama stratejisi,
+  \item Service Worker önbellekleme mekanizmasıyla ağ istek trafiğinin azaltılması,
+  \item Bulut ortamına dağıtılan Android paketi üzerinde güvenlik analizi ve zafiyet yönetimi.
+\end{itemize}

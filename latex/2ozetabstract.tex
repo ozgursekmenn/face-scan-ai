@@ -1,0 +1,19 @@
+\phantomsection
+\addcontentsline{toc}{section}{ÖZET}
+
+\begin{center}
+\textbf{\large ÖZET}
+
+\textbf{YÜZ TARAMA VE RENK ANALİZİ İLE MOBİL SAĞLIK TEŞHİS SİSTEMİ (FACESCAN AI)}
+\end{center}
+
+Mobil sağlık teknolojilerinin (mHealth) giderek yaygınlaşması, akıllı telefon kameralarının yüksek piksel yoğunluğu ve gelişmiş tarayıcı API'lerinin sunduğu hesaplama kapasitesi ile birleştiğinde, bireylere yönelik anlık sağlık göstergesi izleme sistemlerinin geliştirilmesi mümkün hale gelmektedir. Bu çalışmada, kullanıcıların mobil cihaz kamerasını kullanarak yüz renk analizi gerçekleştirebildiği ve sarılık (Jaundice), kansızlık (Pallor/Anemia), morarma (Cyanosis) gibi temel sağlık parametrelerini anlık olarak takip edebildiği \textbf{FaceScan AI} isimli hibrit mobil uygulama ve Progressive Web App (PWA) sistemi geliştirilmiştir.
+
+Sistem, React ve Vite teknoloji yığını üzerine kurulmuş olup istemci tarafı (client-side) piksel işleme yeteneğiyle sunucu kaynaklarına herhangi bir görüntü verisi göndermeden analiz gerçekleştirmektedir. Bu tasarım tercihinin başlıca gerekçesi, sağlık verilerinin gizliliğini koruma zorunluluğu ve bulut sunucu maliyetlerinin minimize edilmesidir. Geliştirilen web uygulaması, Google tarafından belirlenen Trusted Web Activities (TWA) standardı aracılığıyla yerel Android paketi (APK) haline dönüştürülmüş ve böylece tek bir kod tabanıyla hem web hem de mobil platformlara dağıtım sağlanmıştır \cite{google2023twa}.
+
+Uygulamanın Android paketinin güvenlik durumunu değerlendirmek amacıyla yerel Docker ortamında çalıştırılan Mobile Security Framework (MobSF) aracı ile Statik Uygulama Güvenlik Testi (SAST) gerçekleştirilmiştir \cite{mobsf2023docs}. İlk taramada tespit edilen zafiyetler arasında API seviyesi (minSdkVersion) kaynaklı eski Android sürümü açığı, yedekleme protokolü güvenlik açığı (allowBackup) ve yetkisiz servis maruziyeti (DelegationService exported) yer almaktadır. Söz konusu zafiyetlerin kaynak kod düzeyinde giderilmesinin ardından uygulamanın MobSF güvenlik puanı 53/100'den 73/100'e yükseltilmiştir.
+
+\vspace{1.5cm}
+\textbf{Anahtar Kelimeler:} Mobil Programlama, Progressive Web App (PWA), Trusted Web Activities (TWA), MobSF Güvenlik Analizi, Android Geliştirme, İstemci Tarafı Görüntü İşleme, Mobil Güvenlik.
+
+\pagebreak{}

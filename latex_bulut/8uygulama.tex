@@ -1,0 +1,46 @@
+\section{BULUT MİMARİSİ VE DAĞITIM SÜREÇLERİ}
+
+Bu bölümde FaceScan AI'ın bulut altyapısı, Edge CDN mimarisi, CI/CD dağıtım hattı ve otomatik güvenlik yönetimi detaylandırılmaktadır.
+
+\subsection{Küresel Edge CDN Mimarisi}
+
+Geleneksel web barındırma modelinde, sunucu belirli bir coğrafi konumda yer almakta ve tüm dünyadan gelen istekler bu tek merkeze yönlendirilmektedir. Bu yaklaşım, uzak konumlardaki kullanıcılar için ölçülebilir gecikme süresi (latency) artışına yol açmaktadır. CDN (Content Delivery Network) teknolojisi, bu problemi içerik kopyalarını dünya genelinde dağıtılmış sunuculara yayarak çözmektedir \cite{panda2018cdn}.
+
+Vercel'in Edge Network altyapısı, bu prensibi daha da ileri taşıyarak her bir kullanıcı isteğini küresel konumlandırılmış edge sunucularda doğrudan karşılamaktadır \cite{vercel2023docs}. FaceScan AI uygulaması için bu mimarinin pratik sonuçları şunlardır:
+\begin{itemize}
+  \item Türkiye'den gelen istekler Frankfurt veya Varşova'daki yakın edge sunucularından yanıtlanmaktadır.
+  \item Uygulamanın First Contentful Paint (FCP) süresi tek basamaklı saniye değerinin altında kalmaktadır.
+  \item CDN altyapısı, ani trafik artışlarında (örneğin viral paylaşım durumunda) kaynak sunucu üzerine doğrudan yük bindirmeksizin talebi karşılayabilecek kapasiteye sahiptir.
+\end{itemize}
+
+\subsection{Bulut CI/CD (Sürekli Entegrasyon ve Sürekli Dağıtım) Hattı}
+
+Modern bulut tabanlı geliştirme pratikleri, kod değişikliklerinin test ve dağıtım süreçlerinin otomasyonunu esas alan CI/CD (Continuous Integration / Continuous Deployment) yaklaşımını öngörmektedir \cite{buyya2009cloud}. FaceScan AI projesinde bu süreç aşağıdaki gibi işlemektedir:
+
+\begin{enumerate}
+  \item Proje kaynak kodlarında bir güncelleme yapıldığında, \texttt{npx vercel --prod --yes} komutu yerel makinede çalıştırılarak Vercel CLI devreye girmektedir.
+  \item CLI, değişen dosyaları tespit ederek yalnızca güncellenen varlıkları buluta yüklemektedir (delta upload). Bu yaklaşım, gereksiz bant genişliği tüketimini önlemektedir.
+  \item Vercel bulut sunucuları, yüklenen kodu alarak \texttt{npm install} ve \texttt{npm run build} komutlarını cloud-native bir derleme ortamında otomatik olarak çalıştırmaktadır.
+  \item Derleme başarıyla tamamlandıktan sonra çıktılar edge sunucularına dağıtılmakta ve ana alan adı otomatik olarak yeni sürüme yönlendirilmektedir.
+  \item Hatalı bir dağıtım söz konusu olduğunda, Vercel konsolu üzerinden sürüm listesinden istenen önceki dağıtım seçilerek geri dönüş yapılabilmektedir.
+\end{enumerate}
+
+\subsection{Otomatik TLS/SSL Sertifika Yönetimi}
+
+Web uygulamalarında şifreli iletişim, hem kullanıcı gizliliği hem de tarayıcı güvenlik gereksinimleri açısından zorunludur. Let's Encrypt sertifika yetkilisi, ücretsiz ve otomatik olarak yenilenebilen TLS sertifikaları sunmaktadır \cite{letsencrypt2023}. Vercel, bu altyapıyla doğrudan entegre çalışmaktadır:
+
+\begin{itemize}
+  \item Her yeni alan adı için otomatik olarak ACME (Automatic Certificate Management Environment) protokolü üzerinden sertifika talebi oluşturulmaktadır.
+  \item Sertifikalar 90 günlük geçerlilik süresiyle üretilmekte ve sona erme tarihinden önce otomatik olarak yenilenmektedir.
+  \item HTTP üzerinden gelen tüm bağlantılar, DNS katmanında HTTPS protokolüne (TCP 443) yönlendirilmektedir.
+\end{itemize}
+
+Bu yapılandırma sayesinde FaceScan AI'ın kullanıcılarla olan tüm veri alışverişi 256-bit AES şifreleme ile koruma altına alınmaktadır.
+
+\subsection{Dağıtıma Hazır Dijital Varlıkların Yönetimi}
+
+FaceScan AI projesinde bulut sunucusu yalnızca web uygulamasını değil, kullanıcıların doğrudan indirebileceği iki kritik dijital varlığı da barındırmaktadır:
+\begin{itemize}
+  \item \textbf{facescan-ai.apk (1.3 MB):} İmzalanmış Android uygulama paketi. Kullanıcılar bu dosyayı buluttan indirerek herhangi bir uygulama mağazasına ihtiyaç duymaksızın doğrudan kurabilmektedir.
+  \item \textbf{mobsf-report.pdf (~100 KB):} MobSF tarafından üretilen resmi güvenlik analiz raporu. Akademik şeffaflık ve denetlenebilirlik ilkeleri çerçevesinde kamuya açık biçimde sunulmaktadır.
+\end{itemize}

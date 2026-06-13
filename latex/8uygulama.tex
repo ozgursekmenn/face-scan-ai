@@ -1,0 +1,38 @@
+\section{UYGULAMA MİMARİSİ VE DAĞITIM}
+
+Bu bölümde FaceScan AI sisteminin yazılım mimarisi, derleme süreci ve bulut dağıtım altyapısı ele alınmaktadır.
+
+\subsection{Genel Mimari Tasarım}
+
+FaceScan AI, üç ayrı katmandan oluşan bir mimari yaklaşım benimsemektedir. Bu katmanlar şu şekilde tanımlanmıştır:
+
+\begin{itemize}
+  \item \textbf{Sunum Katmanı:} React bileşenleri, Vanilla CSS ile yazılmış tasarım sistemi ve SVG tabanlı görsel öğelerden oluşmaktadır.
+  \item \textbf{İş Mantığı Katmanı:} Kamera bağlantısını yöneten WebRTC modülü, Canvas üzerinde piksel örneklemesi yapan analiz motoru ve LocalStorage erişimini soyutlayan geçmiş yönetim modülünden oluşmaktadır.
+  \item \textbf{Veri Depolama Katmanı:} Sunucu gerektirmeyen istemci taraflı depolamadan (LocalStorage) oluşmaktadır. Tarama sonuçları JSON formatında serileştirilmekte ve kullanıcı cihazında kalıcı olarak saklanmaktadır.
+\end{itemize}
+
+Bu mimari, Fowler'ın katmanlı mimari prensipleri çerçevesinde değerlendirildiğinde; sorumlulukların net biçimde ayrıldığı, test edilebilirliğin yüksek olduğu ve bileşen yeniden kullanılabilirliğini destekleyen bir yapı ortaya koymaktadır \cite{react2023component}.
+
+\subsection{Derleme ve Dağıtım Süreci}
+
+Uygulamanın üretim ortamına alınma süreci iki paralel kanaldan ilerlemektedir:
+
+\subsubsection{Web Dağıtımı (Vercel)}
+Web uygulaması \texttt{npm run build} komutu ile Vite aracılığıyla derlenmektedir. Derleme çıktısı \texttt{/dist} klasörü altında üretilmekte ve \textbf{Vercel} bulut platformuna aktarılmaktadır. Vercel, bu statik çıktıyı küresel Edge CDN ağı üzerinde dağıtarak uygulamanın dünya genelinde düşük gecikme süresiyle erişilebilir olmasını sağlamaktadır. Uygulamanın canlı adresi şudur: \url{https://face-diagnose-app.vercel.app}.
+
+\subsubsection{Android APK Derleme Süreci}
+Mobil paket, \textbf{Bubblewrap CLI} ve \textbf{Gradle} derleme araçlarıyla oluşturulmaktadır. Süreç şu adımlardan oluşmaktadır:
+
+\begin{enumerate}
+  \item \texttt{twa-manifest.json} dosyasından okunan meta veri (paket adı, renk şeması, başlangıç URL'i, imzalama yapılandırması) ile Gradle projesi üretilir.
+  \item \texttt{.\textbackslash gradlew.bat assembleRelease} komutu çalıştırılarak Java kaynak kodları derlenir, ProGuard ile kod gizleme ve optimize etme uygulanır.
+  \item Derlenen APK dosyası, \texttt{facescan-ai-key.keystore} anahtar deposundaki RSA 2048-bit anahtarıyla dijital olarak imzalanır.
+  \item İmzalanan APK, \texttt{public/facescan-ai.apk} yoluna kopyalanarak bulut sunucusu üzerinden indirilebilir hale getirilir.
+\end{enumerate}
+
+Elde edilen APK dosyasının boyutu \textbf{1.3 MB} olup bu değer, geliştirici topluluğunda kabul gören "Android APK boyutu 5 MB'ın altında tutulmalıdır" tavsiyesiyle uyumludur.
+
+\subsection{Tasarım Sistemi ve Erişilebilirlik}
+
+Uygulamanın görsel tasarımı, HSL tabanlı özel renk paleti, cam efekti (Glassmorphism) stili ve keyframe animasyonları içeren kapsamlı bir CSS tasarım sistemiyle oluşturulmuştur. Renk seçimlerinde WCAG 2.1 AA standardının öngördüğü minimum 4.5:1 kontrast oranına uygunluk sağlanmıştır. Tüm etkileşimli öğeler benzersiz \texttt{id} nitelikleri ile işaretlenmiş, klavye navigasyonu ve ekran okuyucu (screen reader) uyumluluğu gözetilmiştir.

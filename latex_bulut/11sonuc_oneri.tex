@@ -1,0 +1,37 @@
+\section{SONUÇLAR VE ÖNERİLER}
+
+Bu bölümde FaceScan AI projesinin bulut bilişim perspektifinden genel değerlendirmesi yapılmakta, elde edilen teknik kazanımlar ortaya konulmakta ve gelecekteki geliştirme önerileri sunulmaktadır.
+
+\subsection{Genel Değerlendirme}
+
+FaceScan AI projesi, bulut bilişim prensiplerini gerçek bir üretim uygulaması üzerinde bütüncül biçimde uygulayan akademik bir çalışmadır. Aşağıdaki değerlendirmeler proje çıktılarının teknik yeterliliğini özetlemektedir:
+
+\begin{enumerate}
+  \item \textbf{Sunucusuz Maliyet Modeli:} Vercel PaaS altyapısı üzerindeki dağıtım, herhangi bir fiziksel sunucu kiralama veya işletim sistemi bakım masrafı gerektirmeksizin gerçekleştirilmiştir. Buyya ve diğerleri (2009), bulutun "beşinci kamu hizmeti" (5th utility) olarak konumlandırılmasında ekonomik esnekliğin belirleyici rol oynadığını vurgulamaktadır \cite{buyya2009cloud}; bu çalışma söz konusu esnekliği somut biçimde örneklemektedir.
+
+  \item \textbf{Bant Genişliği Optimizasyonu:} İstemci tarafı hesaplama modeli ve Service Worker önbellekleme stratejisinin birleşimi, bulut sunucusundan kaynaklanan veri transfer maliyetini teorik minimuma indirmiştir. Jonas ve diğerleri (2019), sunucusuz paradigmanın en büyük kazanımının kaynak verimliliği olduğunu belirtmektedir \cite{jonas2019cloud}; bu çalışma bu kazanımı görüntü işleme bağlamında somutlaştırmaktadır.
+
+  \item \textbf{Küresel Erişilebilirlik:} Edge CDN mimarisi sayesinde uygulama, tek bir merkezi sunucu noktasına bağımlı kalmaksızın dünya genelinde düşük gecikme süresiyle erişilebilir hale getirilmiştir \cite{panda2018cdn}.
+
+  \item \textbf{Güvenlik Standartı:} Uygulanan güvenlik yamaları sonucunda MobSF puanı 73/100'e yükseltilmiş ve tüm yüksek riskli açıklar kapatılmıştır \cite{mobsf2023docs, owasp2023mobile}.
+\end{enumerate}
+
+\subsection{Karşılaşılan Zorluklar}
+
+Bulut dağıtım sürecinde karşılaşılan en önemli teknik güçlük, Bubblewrap CLI aracının her derleme sürecinde yapılandırma dosyalarını yeniden üretmesi ve manuel güvenlik ayarlarının üzerine yazmasıdır. Bu sorun, Gradle derleme hattına bağımsız imzalama yapılandırması eklenerek ve \texttt{tools:replace} XML mekanizmasıyla çözülmüştür.
+
+\subsection{Gelecekteki Geliştirme Önerileri}
+
+Projenin bulut bilişim boyutunun güçlendirilmesi için aşağıdaki öneriler sunulmaktadır:
+
+\begin{itemize}
+  \item \textbf{Çoklu Bulut Stratejisi (Multi-Cloud):} Tek bir bulut sağlayıcıya bağımlılığı azaltmak ve yüksek erişilebilirliği garanti altına almak için AWS CloudFront gibi alternatif CDN sağlayıcısıyla yedekli mimari kurulabilir. Garg ve diğerleri (2011), çoklu bulut değerlendirme çerçevelerinin maliyet ve erişilebilirlik metriklerini optimize ettiğini göstermektedir \cite{garg2013smicloud}.
+
+  \item \textbf{Edge Hesaplama (Edge Computing):} Görüntü işlemenin bir kısmı, tarayıcı yerine coğrafi olarak yakın Vercel Edge fonksiyonlarına taşınabilir; bu yaklaşım, düşük işlemci kapasiteli cihazlarda performansı iyileştirebilir \cite{bermbach2017fog}.
+
+  \item \textbf{Şifreli Bulut Yedekleme:} Kullanıcıların tarama geçmişlerini farklı cihazlar arasında senkronize edebilmeleri için uçtan uca şifreli (E2EE) bir bulut veri tabanı altyapısı (Supabase veya Firebase ile Zero-Knowledge Architecture) eklenebilir.
+
+  \item \textbf{Anlık Performans İzleme:} Vercel Analytics veya OpenTelemetry protokolüyle entegre edilecek bulut izleme (cloud monitoring) altyapısı, gerçek zamanlı Core Web Vitals metrikleri ve hata raporları sağlayacaktır.
+\end{itemize}
+
+Bu önerilerin hayata geçirilmesiyle FaceScan AI, kurumsal düzeyde ölçeklenebilir, gözlemlenebilir ve çok bölgeli (multi-region) dayanıklı bir bulut sistemi olma özelliğine kavuşacaktır.

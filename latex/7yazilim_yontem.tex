@@ -1,0 +1,51 @@
+\section{KULLANILAN YAZILIMLAR VE YÖNTEMLER}
+
+Bu bölümde FaceScan AI projesinde kullanılan yazılım araçları, kütüphaneler, algoritma yaklaşımları ve geliştirme yöntemleri detaylı biçimde açıklanmaktadır.
+
+\subsection{Teknoloji Yığını ve Bileşen Mimarisi}
+
+Uygulama arayüzü, bileşen odaklı programlama paradigmasına dayanan \textbf{React (v18)} kütüphanesi kullanılarak geliştirilmiştir. React'in sanal DOM (Virtual Document Object Model) altyapısı, gereksiz arayüz yeniden çizimi işlemlerini minimize ederek yüksek frekanslı kamera akışı güncellemelerinin bile pürüzsüz çalışmasına imkân tanımaktadır \cite{react2023component}. Bileşen hiyerarşisi üç temel katmandan oluşmaktadır:
+
+\begin{enumerate}
+  \item \textbf{App.jsx (Uygulama Kabuğu):} Alt navigasyon çubuğunu, sayfa yönlendirme mantığını ve tarama geçmişi verilerinin LocalStorage üzerinden yönetimini barındırmaktadır.
+  \item \textbf{Scanner.jsx (Tarayıcı Motoru):} WebRTC kamera bağlantısını kuran, Canvas üzerinde piksel örneklemesi yapan ve HSL renk analiz algoritmalarını çalıştıran çekirdek bileşendir.
+  \item \textbf{Results.jsx (Sonuç Ekranı):} SVG tabanlı dairesel ilerleme göstergeleri aracılığıyla tarama sonuçlarını görsel olarak sunan ve tıbbi feragat bilgilerini içeren bileşendir.
+\end{enumerate}
+
+Modül paketleyici olarak \textbf{Vite (v5)} tercih edilmiştir. Vite, geliştirme aşamasında ES Modülü (ESM) tabanlı yerel sunucu kullanarak Hot Module Replacement (HMR) performansını geleneksel webpack çözümlerine kıyasla önemli ölçüde artırmaktadır. Üretim derlemesinde (production build) ise Rollup tabanlı paketleme sayesinde JavaScript dosya boyutu 178 KB'a (gzip sonrası 56 KB) indirilmiştir.
+
+\subsection{Progressive Web App (PWA) Mimarisi}
+
+PWA teknolojisi, web uygulamalarına yerel (native) uygulamaların erişilebilirlik özelliklerini kazandıran bir standartlar bütünüdür. FaceScan AI projesinde PWA mimarisi iki temel bileşen üzerine kurulmuştur:
+
+\subsubsection{Service Worker (sw.js)}
+Service Worker, tarayıcı ana iş parçacığından bağımsız çalışan bir JavaScript proxy katmanıdır. Ağ isteklerini yakalayarak önbellek (cache) yönetimi yapması, çevrimdışı çalışmayı mümkün kılması ve arka plan senkronizasyonu sağlaması en temel görevleri arasındadır \cite{biorn2017progressive}. Bu projede \textbf{Cache First} stratejisi benimsenmiştir: Statik dosyalar (HTML, CSS, JS, SVG logo) ilk erişimde önbelleğe alınmakta ve sonraki erişimlerde doğrudan önbellekten sunulmaktadır. Yalnızca önbellekte bulunmayan kaynaklar ağ üzerinden çekilmektedir.
+
+\subsubsection{Web App Manifest (manifest.json)}
+Web Uygulama Manifestosu, uygulamanın kurulum deneyimini tanımlayan bir JSON belgesidir. İkon setleri (192x192, 512x512 piksel), başlangıç URL adresi, renk şeması, ekran yönü (portrait) ve \texttt{display: standalone} (tarayıcı çubuğu gizli tam ekran) parametrelerini içermektedir. Bu yapılandırma sayesinde uygulama, Android ve iOS ana ekranına kurulabilir ve açıldığında bağımsız bir uygulama görünümü sergilemektedir.
+
+\subsection{Kamera Tabanlı Renk Analizi Yöntemi}
+
+FaceScan AI'ın teşhis motoru, tarayıcının \textbf{MediaDevices.getUserMedia()} API'si aracılığıyla kamera akışına bağlanmaktadır. Görüntü işleme süreci aşağıdaki adımlardan oluşmaktadır:
+
+\textbf{Adım 1 -- Kare Yakalama:} Canlı video akışı HTML5 \texttt{<video>} öğesine bağlanır. Belirli aralıklarla \texttt{requestAnimationFrame()} döngüsü tetiklenerek anlık görüntü kareleri yakalanır.
+
+\textbf{Adım 2 -- Canvas Üzerinde Piksel Örnekleme:} Yakalanan görüntü, görünmez bir Canvas nesnesine çizilerek \texttt{getImageData()} fonksiyonu ile ham RGB piksel matrisi elde edilir. Analiz için yüzün üç ayrı bölgesinden örnekleme yapılmaktadır: alın bölgesi (genel cilt tonu), göz çevresi (sarılık için sklera rengi) ve dudak çevresi (siyanoz için).
+
+\textbf{Adım 3 -- RGB'den HSL'ye Dönüşüm:} Renk analizi, ışık koşullarından daha az etkilenen HSL (Hue-Saturation-Lightness) renk uzayında gerçekleştirilmektedir. Dönüşüm formülleri şu şekildedir:
+
+\begin{equation}
+L = \frac{\max(R,G,B) + \min(R,G,B)}{2 \times 255}
+\end{equation}
+
+\begin{equation}
+S = \begin{cases} 0 & \text{eğer } L = 0 \text{ veya } L = 1 \\ \frac{\max(R,G,B) - \min(R,G,B)}{1 - |2L - 1|} & \text{aksi hâlde} \end{cases}
+\end{equation}
+
+\textbf{Adım 4 -- Renk Sınıflandırma Kuralları:} HSL değerleri üzerinden durum sınıflandırması yapılmaktadır. Sarılık riski için H $\in$ [40°, 65°] ve S $> 0.3$ aralığındaki ton değerleri incelenmekte, kansızlık için L $> 0.75$ ve S $< 0.2$ koşulları sınanmakta, siyanoz için ise H $\in$ [200°, 260°] aralığı kontrol edilmektedir.
+
+\subsection{Trusted Web Activities (TWA) ile Android Paketleme}
+
+TWA, Chrome Custom Tabs altyapısını kullanarak bir web uygulamasını yerel bir Android aktivitesi görünümüyle çalıştıran özel bir entegrasyon yöntemidir. Standart WebView tabanlı hibrit çözümlerden farklı olarak, TWA uygulamaları cihazda yüklü Chrome tarayıcısıyla doğrudan iletişim kurduğundan tarayıcı hızında çalışmaktadır; çerezler ve yerel depolama alanı tarayıcıyla paylaşılmaktadır \cite{google2023twa}.
+
+Paketleme süreci \textbf{Bubblewrap CLI} aracıyla yürütülmüştür. Bu araç, \texttt{twa-manifest.json} yapılandırma dosyasını okuyarak Gradle tabanlı bir Android projesi üretmekte ve imzalama anahtarı (\texttt{.keystore}) ile birlikte derleyerek Play Store'a göndermeye hazır imzalı APK dosyası oluşturmaktadır. Üretilen APK dosyasının boyutu 1.3 MB olup bu değer, benzer kategorideki yerel uygulamaların ortalama 15-30 MB boyutunun çok altındadır \cite{malavolta2015hybrid}.

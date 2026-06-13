@@ -1,0 +1,66 @@
+\section{GÜVENLİK ANALİZİ BULGULARI VE TARTIŞMA}
+
+Bu bölümde FaceScan AI Android uygulamasının güvenlik analizi süreci, tespit edilen bulgular, uygulanan çözümler ve bu süreçten elde edilen çıkarımlar akademik çerçevede ele alınmaktadır.
+
+\subsection{Mobil Uygulama Güvenliğinin Önemi}
+
+Android ekosistemi, açık kaynak yapısı ve çeşitli OEM değişikliklerine izin veren mimarisi nedeniyle güvenlik açıklarına karşı diğer mobil platformlara kıyasla daha fazla maruziyet göstermektedir. OWASP Mobile Security Testing Guide (MSTG), mobil uygulamaların güvenlik değerlendirmesinde statik ve dinamik analiz yöntemlerinin birlikte uygulanmasını önermektedir \cite{owasp2023mobile}. Statik Uygulama Güvenlik Testi (SAST), uygulamanın çalıştırılmadan kaynak kod ve yapılandırma dosyaları düzeyinde analiz edilmesidir; bu yöntem zafiyetlerin erken tespit edilmesi açısından kritik öneme sahiptir \cite{al2018mobile}.
+
+\subsection{MobSF Analiz Ortamının Kurulumu}
+
+MobSF (Mobile Security Framework), OWASP MSTG ile uyumlu açık kaynaklı bir güvenlik analiz platformudur \cite{mobsf2023docs}. Bu çalışmada MobSF, Docker konteyner teknolojisi üzerinde yerel olarak çalıştırılmıştır. Kullanılan komut şu şekildedir:
+
+\begin{lstlisting}[language=bash]
+docker run -it --rm -p 8000:8000 \
+  opensecurity/mobile-security-framework-mobsf:latest
+\end{lstlisting}
+
+Konteyner başarıyla çalıştırıldıktan sonra MobSF REST API'si aracılığıyla APK dosyası sisteme yüklenerek analiz süreci başlatılmıştır. Analiz; \texttt{AndroidManifest.xml} denetimleri, kaynak kod incelemesi (JADX decompiler), sertifika doğrulama ve kütüphane bağımlılıkları kontrolünü kapsamaktadır.
+
+\subsection{Tespit Edilen Güvenlik Açıkları}
+
+İlk sürümün analizinde elde edilen güvenlik puanı \textbf{53/100} olarak ölçülmüştür. Bu sonuçla birlikte 1 adet Yüksek Riskli (High) ve 4 adet Uyarı (Warning) düzeyinde bulgu raporlanmıştır.
+
+\subsubsection{Yüksek Risk: Eski Android Sürümü Desteği}
+\texttt{minSdkVersion = 21} parametresi, uygulamanın Android 5.0 (Lollipop) sürümüne kadar geriye dönük uyumlu olmasını tanımlamaktadır. Ancak bu sürüm, Google tarafından güvenlik güncellemeleri almayan ve bilinen birden fazla işletim sistemi açığı barındıran bir sürümdür. Li ve diğerleri (2022), eski API seviyelerindeki Android uygulamalarının yetersiz izolasyon mekanizmaları nedeniyle kötü amaçlı uygulamaların arabellek taşması (buffer overflow) ve izin yükseltme (privilege escalation) saldırılarına karşı savunmasız kalabileceğini vurgulamaktadır \cite{li2022android}.
+
+\subsubsection{Uyarı: Uygulama Veri Yedekleme Açığı}
+\texttt{android:allowBackup = true} parametresi, Android Debug Bridge (ADB) protokolü aracılığıyla uygulama verilerinin bir kopyasının harici ortamlara aktarılmasına imkân tanımaktadır. USB hata ayıklama özelliği etkin olan bir cihaza fiziksel erişim elde eden yetkisiz kişilerin bu yöntemle uygulama verilerini kopyalayabileceği bilinmektedir \cite{owasp2023mobile}.
+
+\subsubsection{Uyarı: Korumasız Servis Maruziyeti}
+\texttt{DelegationService} bileşeni, \texttt{android:exported} değerinin dinamik bir boolean kaynağa (\texttt{@bool/enableNotification}) bağlı olması nedeniyle MobSF tarafından potansiyel olarak dışa açık (exported) kabul edilmiştir. Dışa açık servislerin intent-filter barındırması, cihazdaki diğer uygulamaların bu servisi yetkisiz biçimde tetikleyebileceği anlamına gelmektedir \cite{enck2014taintdroid}.
+
+\subsection{Uygulanan Güvenlik Yamaları}
+
+Tespit edilen açıklar aşağıdaki kaynak kod düzeyindeki değişikliklerle giderilmiştir:
+
+\begin{table}[!ht]
+    \centering
+    \caption{Güvenlik Yamaları Öncesi ve Sonrası Karşılaştırma}
+    \label{tab:security_comparison}
+    \resizebox{\textwidth}{!}{%
+    \begin{tabular}{|l|l|l|l|}
+        \hline
+        \textbf{Bulgu} & \textbf{Risk} & \textbf{Yama Öncesi} & \textbf{Yama Sonrası} \\
+        \hline
+        Eski Android Sürümü & Yüksek & minSdkVersion=21 & minSdkVersion=29 \\
+        \hline
+        ADB Veri Yedekleme & Uyarı & allowBackup=true & allowBackup=false \\
+        \hline
+        DelegationService & Uyarı & exported=@bool/.. & exported=false \\
+        \hline
+        MobSF Güvenlik Puanı & -- & 53 / 100 & \textbf{73 / 100} \\
+        \hline
+        Yüksek Risk Sayısı & -- & 1 & \textbf{0} \\
+        \hline
+        Uyarı Sayısı & -- & 4 & \textbf{2} \\
+        \hline
+    \end{tabular}%
+    }
+\end{table}
+
+\texttt{minSdkVersion} değerinin 29'a (Android 10+) yükseltilmesi, güvenlik güncellemeleri almayan Android sürümlerine desteği sonlandırmıştır. \texttt{allowBackup=false} ayarı, ADB tabanlı veri sızdırma vektörünü kapatmıştır. \texttt{tools:replace="android:allowBackup"} kuralı eklenerek bağımlı kütüphanelerin bu ayarı geçersiz kılması önlenmiştir. DelegationService'e açıkça \texttt{android:exported="false"} atanarak yetkisiz servis erişimi engellenmiştir.
+
+\subsection{Kalan Uyarılar ve Değerlendirme}
+
+Yama sonrası analizde tespit edilen 2 uyarı, yönettimiz kapsamı dışındaki üçüncü taraf kütüphane bileşenlerinden kaynaklanmaktadır. \texttt{ProfileInstallReceiver} bileşeni \texttt{android.permission.DUMP} izni gerektiren Android sistem düzeyinde bir broadcast alıcısıdır ve kullanıcı uygulamaları tarafından değiştirilememektedir. Bu tür kütüphane kaynaklı uyarılar, sektör pratiğinde düşük öncelikli (low priority) olarak değerlendirilmekte ve tehdit vektörü oluşturmadığı kabul edilmektedir \cite{al2018mobile}.

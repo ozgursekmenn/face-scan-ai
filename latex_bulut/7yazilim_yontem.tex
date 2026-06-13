@@ -1,0 +1,39 @@
+\section{KULLANILAN BULUT YAZILIMLARI VE OPTİMİZASYON YÖNTEMLERİ}
+
+Bu bölümde FaceScan AI projesinde kullanılan bulut platformu, araçlar ve bant genişliği optimizasyon stratejileri incelenmektedir.
+
+\subsection{Vercel PaaS Platformu}
+
+Vercel, statik web uygulamaları ve sunucusuz fonksiyonlar için optimize edilmiş bir PaaS bulut platformudur \cite{vercel2023docs}. Geleneksel IaaS çözümlerine (AWS EC2, Google Compute Engine vb.) kıyasla temel ayrımı, kullanıcının işletim sistemi, güvenlik yamaları, ağ yapılandırması ve yük dengeleme (load balancing) konularında hiçbir yönetimsel sorumluluk üstlenmemesidir. Bu soyutlama katmanı, geliştirici verimliliğini önemli ölçüde artırmaktadır \cite{jonas2019cloud}.
+
+Vercel'in sunduğu temel özellikler şu şekilde özetlenebilir:
+\begin{itemize}
+  \item \textbf{Edge Fonksiyonları:} Sunucu tarafı işlemlerin kullanıcıya en yakın veri merkezinde çalışmasını sağlayan dağıtılmış işlem katmanıdır.
+  \item \textbf{Otomatik HTTPS:} Her dağıtımda Let's Encrypt sertifika yetkilisi aracılığıyla TLS/SSL sertifikası otomatik olarak üretilmekte ve yenilenmektedir \cite{letsencrypt2023}.
+  \item \textbf{Anlık Dağıtım (Instant Rollout):} Kod güncellemeleri saniyeler içinde canlıya alınmakta, hatalı bir dağıtım durumunda ise tek komutla önceki sürüme dönüş imkânı sağlanmaktadır.
+  \item \textbf{Sıfır Maliyet Başlangıç Katmanı:} Orta ölçekli trafik seviyelerine kadar ücret alınmamaktadır; bu durum akademik ve prototip projeler için ideal bir seçim oluşturmaktadır.
+\end{itemize}
+
+\subsection{İstemci Tarafı Hesaplama ile Bulut Maliyeti Optimizasyonu}
+
+Bulut ekonomisini doğrudan etkileyen iki temel maliyet kalemi vardır: işlemci (vCPU) süresi ve veri transferi (egress bandwidth). FaceScan AI projesinde bu maliyetleri sıfıra indirmeye yönelik tasarım tercihinin temel aracı, görüntü işleme hesaplamalarının bulut sunucusundan tamamen ayrılarak istemci tarayıcısına kaydırılmasıdır.
+
+Geleneksel mimari yaklaşımında, kamera görüntüsü sunucuya yüklenir; sunucu görüntüyü işler ve sonucu istemciye geri döndürür. Bu süreçte hem upload hem download bant genişliği tüketilmekte hem de sunucu CPU süresi üzerinden ücret alınmaktadır. FaceScan AI'da ise tüm bu işlemler HTML5 Canvas API ve JavaScript renk dönüşüm algoritmaları aracılığıyla kullanıcının cihazında gerçekleştirilmektedir. Sonuç olarak herhangi bir görüntü verisi ağa çıkmamaktadır.
+
+\subsection{Vite ile Derleme Optimizasyonu}
+
+Uygulamanın üretim derlemesi \textbf{Vite} modül paketleyicisi aracılığıyla gerçekleştirilmektedir. Vite'ın derleme sürecindeki optimizasyon katmanları şu şekildedir:
+
+\begin{enumerate}
+  \item \textbf{Ağaç Sallama (Tree-Shaking):} Kullanılmayan JavaScript modülleri derleme zamanında tespit edilerek nihai paketten çıkarılır.
+  \item \textbf{Kod Bölme (Code-Splitting):} Büyük JavaScript dosyaları, tarayıcının yalnızca ihtiyaç duyulan parçaları indirmesine imkân tanıyacak biçimde parçalara ayrılır.
+  \item \textbf{Gzip Sıkıştırması:} Üretilen dosyalar gzip algoritmasıyla sıkıştırılarak ağ üzerinden iletilen veri hacmi minimize edilir.
+\end{enumerate}
+
+Bu optimizasyonlar sonucunda uygulamanın ana JavaScript paketi yalnızca \textbf{178 KB} (gzip sonrası \textbf{56 KB}) büyüklüğünde elde edilmiştir. Bu değer, küresel web performans standartlarında bant genişliği açısından oldukça ekonomik kabul edilmektedir \cite{panda2018cdn}.
+
+\subsection{Service Worker Önbellekleme Stratejisi}
+
+PWA mimarisinin bulut maliyet optimizasyonuna yönelik en önemli katkısı, Service Worker önbellekleme mekanizmasıdır. Bu mekanizma, uygulamanın statik varlıklarının (HTML, CSS, JS, SVG ikonlar) kullanıcının cihazına ilk erişimde kaydedilmesini ve sonraki oturumlarda doğrudan bu yerel kopyadan sunulmasını sağlamaktadır \cite{biorn2017progressive}.
+
+Kacheline (Cache First) stratejisi uygulandığında, kullanıcının ikinci ve sonraki ziyaretlerinde bulut CDN sunucularına yapılan istek sayısı teorik olarak sıfıra yaklaşmaktadır. Bu durum, hem bulut bant genişliği maliyetlerini düşürmekte hem de uygulama yükleme süresini dramatik biçimde azaltmaktadır.

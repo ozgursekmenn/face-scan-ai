@@ -1,0 +1,34 @@
+\section{SONUÇLAR VE ÖNERİLER}
+
+Bu bölümde gerçekleştirilen çalışmanın genel değerlendirmesi yapılmakta, elde edilen teknik bulgular yorumlanmakta ve sistemin olası geliştirme yönleri tartışılmaktadır.
+
+\subsection{Genel Değerlendirme}
+
+Bu çalışmada, mobil programlama alanındaki temel kavram ve teknolojileri pratikte bütünleşik biçimde uygulayan FaceScan AI sistemi başarıyla geliştirilmiştir. Projenin teknik çıktıları incelendiğinde, belirlenen hedeflere ulaşıldığı görülmektedir:
+
+\begin{enumerate}
+  \item \textbf{Çapraz Platform Dağıtım:} Tek bir React ve Vite tabanlı kod tabanı, PWA teknolojisi aracılığıyla hem web tarayıcısında hem de Android cihazlarda yerel uygulama deneyimi sunabilecek biçimde yapılandırılmıştır. Bubblewrap CLI aracılığıyla üretilen 1.3 MB boyutundaki imzalı APK, TWA standardının pratik uygulanabilirliğini somut bir örnekle ortaya koymaktadır \cite{google2023twa}.
+
+  \item \textbf{Sunucu Bağımsız Analiz Motoru:} Sağlık parametrelerini ölçen piksel renk analizi, HSL dönüşüm formülleri kullanılarak tamamen istemci tarafında gerçekleştirilmiştir. Bu yaklaşım, hem kullanıcı gizliliğini korumakta hem de bulut işlemci maliyetlerini sıfırlamaktadır.
+
+  \item \textbf{Güvenlik Güvencesi:} MobSF SAST aracıyla yapılan güvenlik analizi ve ardından uygulanan yamalar, projenin güvenlik puanını 53'ten 73'e yükseltmiş ve tüm yüksek riskli açıkları kapatmıştır \cite{mobsf2023docs}. Bu süreç, güvenli yazılım geliştirme yaşam döngüsünün (Secure SDLC) bir parçası olarak akademik çerçevede uygulanmıştır.
+\end{enumerate}
+
+\subsection{Karşılaşılan Teknik Zorluklar}
+
+Geliştirme sürecinde çeşitli teknik güçlüklerle karşılaşılmıştır. Birincisi, Bubblewrap CLI'nin her derleme sürecinde \texttt{twa-manifest.json} değişikliklerini tespit etmesi ve \texttt{AndroidManifest.xml} dosyasını yeniden üretmesidir. Bu durum, manuel olarak yapılan güvenlik konfigürasyonlarının (exported=false gibi) üzerine yazılması sorununu doğurmuştur. Çözüm olarak \texttt{tools:replace} XML niteliği ve Gradle \texttt{signingConfigs} bloğu entegre edilerek Bubblewrap'tan bağımsız bir derleme hattı kurulmuştur.
+
+İkinci önemli güçlük, farklı cihaz kameralarının renk kalibrasyonu tutarsızlıklarıdır. Farklı ışık koşulları ve kamera modelleri arasındaki renk sapması, HSL analiz eşik değerlerini sabit tutmayı güçleştirmektedir.
+
+\subsection{Gelecekteki Çalışmalar için Öneriler}
+
+Bu prototip çalışmanın ilerleyen aşamalarında aşağıdaki geliştirmelerin yapılması önerilmektedir:
+
+\begin{itemize}
+  \item \textbf{Makine Öğrenmesi Entegrasyonu:} TensorFlow.js ve MediaPipe FaceMesh kütüphaneleri kullanılarak yüzün 3D anahtar noktaları (keypoints) çıkarılabilir ve daha hassas bölgesel renk örneklemesi yapılabilir. Bu entegrasyon, sınıflandırma doğruluğunu kayda değer biçimde artıracaktır.
+  \item \textbf{Uçtan Uca Şifreli Bulut Yedeklemesi:} Yerel depolamadaki tarama geçmişi verilerinin farklı cihazlar arasında senkronize edilebilmesi için uçtan uca şifreli (E2EE) bir bulut veri tabanı altyapısı (örn. Supabase veya Firebase ile AES-256 şifreleme) eklenebilir.
+  \item \textbf{Klinik Doğrulama Çalışması:} Uygulamanın renk analiz algoritmalarının gerçek tıbbi verilerle karşılaştırmalı olarak doğrulanması, sistemin güvenilirliğini ve gerçek dünya kullanımına uygunluğunu bilimsel temele oturtacaktır.
+  \item \textbf{iOS Desteğinin Genişletilmesi:} Mevcut TWA altyapısı yalnızca Android cihazları kapsamaktadır. Capacitor veya Ionic çerçevesiyle oluşturulacak bir iOS paketi, kullanıcı tabanının genişletilmesine imkân tanıyacaktır.
+\end{itemize}
+
+Bu önerilerin hayata geçirilmesiyle FaceScan AI, akademik prototipin ötesine geçerek gerçek dünya sağlık teknolojisi ekosisteminde değer üretebilecek bir platforma dönüşme potansiyeli taşımaktadır.

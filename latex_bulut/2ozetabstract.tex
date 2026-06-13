@@ -1,0 +1,19 @@
+\phantomsection
+\addcontentsline{toc}{section}{ÖZET}
+
+\begin{center}
+\textbf{\large ÖZET}
+
+\textbf{BULUT TABANLI SUNUCUSUZ VE HİBRİT MİMARİDE MOBİL SAĞLIK TEŞHİS SİSTEMİ (FACESCAN AI)}
+\end{center}
+
+Bulut bilişim teknolojileri, yazılım sistemlerinin geliştirilmesi ve dağıtılmasında köklü bir dönüşümü beraberinde getirmiştir. Geleneksel barındırma modellerinde karşılaşılan fiziksel donanım maliyetleri, uzun temin süreleri ve esnek olmayan ölçeklendirme mekanizmaları yerini, kaynak kullanımı tabanlı ücretlendirme ve dinamik ölçeklendirme kapasitesine bırakan bulut modellere bırakmaktadır \cite{mell2011nist}. Bu bağlamda, sunucusuz (serverless) yaklaşım; geliştirici ekiplerin altyapı yönetim yükünden arınarak yalnızca uygulama mantığına odaklanabilmesine olanak tanıyan bir PaaS (Platform as a Service) paradigması olarak öne çıkmaktadır \cite{jonas2019cloud}.
+
+Bu çalışmada, yüz renk analizine dayalı mobil sağlık teşhis uygulaması olan \textbf{FaceScan AI}'ın bulut tabanlı sunucusuz altyapısı tasarlanmış ve uygulamaya konulmuştur. Sistem, PaaS bulut sağlayıcısı \textbf{Vercel} üzerinde barındırılmakta; küresel Edge CDN ağı aracılığıyla düşük gecikme süresi ve yüksek erişilebilirlik sunmaktadır. Görüntü analiz işlemlerinin istemci tarafında (client-side) yürütülmesi, bulut sunucularına yönelik işlemci (CPU) ve bant genişliği tüketimini sıfır düzeyinde tutmaktadır. Uygulamanın PWA (Progressive Web App) mimarisi sayesinde Service Worker önbellekleme mekanizması devreye girerek tekrarlayan ağ istekleri minimize edilmektedir \cite{biorn2017progressive}.
+
+Bulut dağıtımındaki güvenlik standartlarını doğrulamak amacıyla Android paketi üzerinde MobSF statik güvenlik analizi (SAST) yürütülmüş ve tespit edilen açıkların kapatılmasının ardından uygulama güvenlik puanı 53/100'den 73/100'e yükseltilmiştir \cite{mobsf2023docs}. Bu çalışmanın, bulut bilişim prensiplerinin gerçek dünya uygulamaları üzerinde nasıl hayata geçirildiğini açıklayan pratik bir örnek oluşturması hedeflenmektedir.
+
+\vspace{1.5cm}
+\textbf{Anahtar Kelimeler:} Bulut Bilişim, Sunucusuz Mimari (Serverless), PaaS, Edge CDN, Servis Worker, Mobil Bulut Güvenliği, CI/CD Dağıtımı.
+
+\pagebreak{}

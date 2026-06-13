@@ -1,0 +1,43 @@
+%%%%%%%%Bilecik Şeyh Edebali Üniversitesi Mühendislik Fakültesi%%%% 
+%%%%%%%%Yönetim Bilişim Sistemleri Ödev Çalışması%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%LaTeX Class%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass{YBS}
+
+\usepackage{subcaption}
+\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+
+\lstset{
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  frame=single,
+  language=bash
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+%%%%%%%%%%%%%%%%%%%%%%Ödev Çalışmasının Bölümleri%%%%%%%%%%%%%%% 
+\include{1kapak}
+\pagenumbering{roman} % romen rakamları kullanılmaya başlanıyor.
+\setcounter{page}{2}  % sayfa numarasını ii'den başlatılıyor.
+
+%-----------------------------------------------------%
+\include{2ozetabstract}
+\include{3icindekiler}
+\include{4sekiller_tablosu}
+\include{5cizelgeler_tablosu}
+\pagenumbering{arabic}  % Sayfa numaralamasını arap rakamlarıyla yapar.
+\setcounter{page}{1}    % sayfa numarasını 1'den başlatır.
+\include{6giris}
+\include{7yazilim_yontem}
+\include{8uygulama}
+\include{9ekbolum}
+\include{10bulgu_tartisma}
+\include{11sonuc_oneri}
+\include{12ekler}
+\include{13kaynaklar}
+
+\end{document}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%BİTTİ%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
