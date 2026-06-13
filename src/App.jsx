@@ -213,6 +213,45 @@ function InfoTab() {
         </div>
       </div>
 
+      <div className="glass-card glow-primary" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <h3 style={{ fontSize: '1.05rem', color: 'var(--primary)' }}>Akademik Raporlar ve Kod Deposu</h3>
+        <p style={{ fontSize: '0.85rem' }}>
+          Ders teslimi için Overleaf şablonlarına uygun hazırlanan LaTeX kaynak kodlarını (.zip) ve tüm proje kod deposunu (GitHub) aşağıdan inceleyebilirsiniz.
+        </p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <a 
+            href="https://github.com/ozgursekmenn/face-scan-ai" 
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-primary"
+            style={{ textDecoration: 'none', color: 'var(--text-inverse)', gap: '8px', fontSize: '0.9rem', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+          >
+            <span>GitHub Kaynak Kod Deposu</span>
+          </a>
+          <a 
+            href="/latex-report.zip" 
+            download="latex-report.zip" 
+            className="btn-primary"
+            style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', gap: '8px', fontSize: '0.9rem', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+          >
+            <span>Mobil Programlama LaTeX Raporu (.zip)</span>
+          </a>
+          <a 
+            href="/bulut-report.zip" 
+            download="bulut-report.zip" 
+            className="btn-primary"
+            style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.2)', color: '#fff', gap: '8px', fontSize: '0.9rem', padding: '10px 20px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.08)'}
+          >
+            <span>Bulut Bilişim LaTeX Raporu (.zip)</span>
+          </a>
+        </div>
+      </div>
+
+
       <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', gap: '8px', opacity: 0.8 }}>
         <h3 style={{ fontSize: '0.95rem', color: '#fff' }}>Geliştirici Bilgileri</h3>
         <p style={{ fontSize: '0.85rem' }}>
